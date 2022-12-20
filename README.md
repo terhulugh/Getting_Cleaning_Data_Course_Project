@@ -40,8 +40,30 @@ url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR
 5. Load activity labels + features
 activityLabels <- fread(file.path(path, "UCI HAR Dataset/activity_labels.txt") , col.names = c("classLabels", "activityName")) features <- fread(file.path(path, "UCI HAR Dataset/features.txt") , col.names = c("index", "featureNames"))
 
-6. Extracts only the measurements on the mean and standard deviation for each measurement
-featuresWanted <- grep("(mean|std)\(\)", features[, featureNames]) measurements <- features[featuresWanted, featureNames] measurements <- gsub('[()]', '', measurements)
+# 6. Extracts only the measurements on the mean and standard deviation 
+#for each measurement and assign appropriately labels the data set with #descriptive variable names
+
+featuresWanted <- grep("(mean|std)\\(\\)", features[, featureNames])
+measurements <- features[featuresWanted, featureNames]
+measurements <- gsub('[()]', '', measurements)
+featuresWanted <- grep("(mean|Mean|std).*", features[, featureNames])
+measurements <- features[featuresWanted, featureNames]
+measurements <- gsub('[()]', '', measurements)
+measurements<-gsub("^t", "Time_", measurements)
+measurements<-gsub("tBody", "Time_Body", measurements)
+measurements<-gsub("fBody", "Frequency_Body", measurements)
+measurements<-gsub("Acc", "_Accelerometer", measurements)
+measurements<-gsub("Gravity", "_Gravity", measurements)
+measurements<-gsub("Jerk", "_Jerk", measurements)
+measurements<-gsub("Gyro", "_Gyroscope", measurements)
+measurements<-gsub("Mag", "_Magnitude", measurements)
+measurements<-gsub("fBody", "Frequency_Body", measurements)
+measurements<-gsub("BodyBody", "_Boby", measurements)
+measurements<-gsub("Mean", "-Mean", measurements)
+measurements<-gsub("mean", "Mean", measurements)
+measurements<-gsub("std", "Std", measurements)
+measurements<-gsub("angle", "Angle_", measurements)
+measurements<-gsub(",", "_", measurements)
 
 7. Load train datasets
 x_train <- fread(file.path(path, "UCI HAR Dataset/train/X_train.txt"))[, featuresWanted, with = FALSE] data.table::setnames(x_train, colnames(x_train), measurements) y_train <- fread(file.path(path, "UCI HAR Dataset/train/Y_train.txt") , col.names = c("Activity")) subject_train <- fread(file.path(path, "UCI HAR Dataset/train/subject_train.txt") , col.names = c("Subject")) train_data <- cbind(x_train, y_train, subject_train)
